@@ -1,0 +1,15 @@
+{
+  "name": "Preoperacional Vehículo Semanal - SITOC",
+  "short_name": "SITOC Preoperacional",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0d2b4e",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3066/306669.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
