@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sitoc-vehiculo-cache-v2';
+const CACHE_NAME = 'sitoc-vehiculo-cache-v3';
 const ASSETS = [
   './',
   './index.html',

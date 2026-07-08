@@ -4,11 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0d2b4e">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="styles.css">
 <title>Preoperacional Vehículo - SITOC</title>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(function (reg) {
+    reg.addEventListener('updatefound', function () {
+      var newSW = reg.installing;
+      newSW.addEventListener('statechange', function () {
+        if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+          console.log('Nueva versión disponible, recargando...');
+          window.location.reload();
+        }
+      });
+    });
+  });
+}
+</script>
 </head>
 <body>
 
