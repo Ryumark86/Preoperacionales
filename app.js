@@ -771,7 +771,7 @@
 
         function addLine(text, opts) {
             opts = opts || {};
-            lines.push({ text: text || '', size: opts.size || 10, bold: opts.bold || false, indent: opts.indent || 0, gap: opts.gap || 0, pageBreak: opts.pageBreak || false, color: opts.color || null });
+            lines.push({ text: text || '', size: opts.size || 10, bold: opts.bold || false, indent: opts.indent || 0, gap: opts.gap || 0, pageBreak: opts.pageBreak || false, color: opts.color || null, isHrule: opts.isHrule || false, section: opts.section || null, bgColor: opts.bgColor || null });
         }
 
         function addImageLine(b64, caption) {
@@ -788,10 +788,11 @@
         addLine('PREOPERACIONAL DE VEH\u00cdCULOS (FR-SST-036)', { size: 15, bold: true, gap: 4 });
         addLine('SITOC \u00b7 FR-SST-036 Ver. 02', { size: 9, gap: 6 });
         addLine('', { size: 4, gap: 0 });
-        addLine('\u2500'.repeat(80), { size: 8, gap: 4 });
+        addLine('', { isHrule: true, gap: 4 });
 
         var est = r.aprobado ? 'CONFORME (Veh\u00edculo Apto)' : 'NO CONFORME (Se detectaron fallas cr\u00edticas)';
         var estColor = r.aprobado ? '0 0.55 0 rg' : '0.8 0 0 rg';
+        addLine('', { section: 'resumen-start', size: 0 });
         addLine('RESUMEN DE AUDITOR\u00cdA', { size: 11, bold: true, gap: 6 });
         addLine('Estado: ' + est, { size: 10, gap: 2, color: estColor });
         addLine('Conductor: ' + (r.conductor || '\u2014'), { size: 10 });
@@ -802,30 +803,33 @@
         if (r.proyectos && r.proyectos.length > 0) addLine('Proyectos: ' + r.proyectos.join(', '), { size: 10 });
         if (r.destinos && r.destinos.length > 0) addLine('Destinos: ' + r.destinos.join(', '), { size: 10, gap: 4 });
         if (r.observaciones) addLine('Obs: ' + r.observaciones, { size: 9, gap: 2 });
-        addLine('', { size: 4, gap: 0 });
+        addLine('', { section: 'resumen-end', size: 0 });
+
+        addLine('', { isHrule: true, gap: 4 });
 
         addLine('MATRIZ DE EVALUACI\u00d3N', { size: 11, bold: true, gap: 4 });
+        addLine('', { section: 'matriz-start', size: 0 });
         var hayEval = Object.values(r.evaluaciones).some(function (v) { return v !== ''; });
         if (hayEval) {
             MATRIZ_CATEGORIAS.forEach(function (cat) {
+                addLine('', { section: 'matriz-cat', size: 0 });
                 addLine('  ' + cat.titulo, { size: 10, bold: true, indent: 5, gap: 2 });
                 cat.items.forEach(function (item) {
                     var val = r.evaluaciones[cat.titulo + '_' + item];
                     if (val && val !== '') {
                         var colorVal = val === 'F' ? '0 0.55 0 rg' : (val === 'NF' ? '0.8 0 0 rg' : '0.85 0.5 0 rg');
-                        addLine('    ' + item + ': ' + val, { size: 9, indent: 10, color: colorVal });
+                        var bgVal = val === 'F' ? '0.85 1 0.85 rg' : (val === 'NF' ? '1 0.85 0.85 rg' : '1 0.92 0.8 rg');
+                        addLine('    ' + item + ': ' + val, { size: 9, indent: 10, color: colorVal, bgColor: bgVal });
                     }
                 });
             });
-            addLine('', { size: 2, gap: 0 });
         }
+        addLine('', { section: 'matriz-end', size: 0 });
 
-        addLine('', { size: 2, gap: 0 });
+        addLine('', { isHrule: true, gap: 4 });
         addLine('Elaborado por: \u00c1rea SST Operativa', { size: 9, indent: 5 });
         addLine('Revisado por: Gerencia General / L\u00edder HSEQ', { size: 9, indent: 5 });
         addLine('C\u00f3digo Formato: FR-SST-036  |  Versi\u00f3n: 02 (2026)', { size: 9, indent: 5, gap: 4 });
-        addLine('', { size: 4, gap: 0 });
-        addLine('\u2500'.repeat(80), { size: 8, gap: 6 });
 
         var images = [];
         if (r.fotos && r.fotos.length > 0) {
@@ -906,16 +910,79 @@
             var end = Math.min(start + linesPerPage, lines.length);
             var pageLines = lines.slice(start, end);
 
+            // Pre-pass: calculate y for each line and detect sections
+            var pageY = [];
+            var sectionMap = {};
+            var curSection = null;
+            var tempY = PAGE_H - MT - 15;
+            for (var pi = 0; pi < pageLines.length; pi++) {
+                var pln = pageLines[pi];
+                var plh = Math.max(10, (pln.size || 10) + 4);
+                tempY -= plh;
+                pageY.push({ y: tempY, lh: plh, top: tempY + plh });
+                if (pln.section && pln.section.indexOf('-start') > 0) curSection = pln.section.replace('-start', '');
+                if (curSection) sectionMap[curSection] = sectionMap[curSection] || { startY: null, endY: null, startIdx: null, endIdx: null };
+                if (pln.section && pln.section.indexOf('-start') > 0) { sectionMap[curSection].startIdx = pi + 1; sectionMap[curSection].startY = tempY + plh; }
+                if (pln.section && pln.section.indexOf('-end') > 0) { sectionMap[curSection].endIdx = pi - 1; sectionMap[curSection].endY = tempY; curSection = null; }
+            }
+
             var content = '';
-            var y = PAGE_H - MT - 15;
             for (var li = 0; li < pageLines.length; li++) {
                 var ln = pageLines[li];
-                var lh = Math.max(10, (ln.size || 10) + 4);
-                y -= lh;
+                var py = pageY[li];
+                var lh = py.lh;
+                var y = py.y;
+
                 if (ln.type === 'image') continue;
+
+                // Section start/end markers: just skip drawing text
+                if (ln.section) continue;
+
+                // Horizontal rule
+                if (ln.isHrule) {
+                    var hrY = y + lh / 2;
+                    content += 'q 0.7 w 0.6 0.6 0.6 RG ' + ML + ' ' + hrY + ' m ' + (ML + CW) + ' ' + hrY + ' l S Q\n';
+                    continue;
+                }
+
                 var indent = ML + (ln.indent || 0);
                 var font = ln.bold ? '/F2' : '/F1';
                 var sz = ln.size || 10;
+
+                // Section box backgrounds (draw once at section start)
+                var sectKeys = Object.keys(sectionMap);
+                for (var si = 0; si < sectKeys.length; si++) {
+                    var sk = sectKeys[si];
+                    var sm = sectionMap[sk];
+                    if (li === sm.startIdx && sm.startY !== null && sm.endY !== null) {
+                        var boxTop = sm.startY;
+                        var boxBot = sm.endY;
+                        var boxH = boxTop - boxBot;
+                        if (boxH > 0) {
+                            var boxLeft = ML - 3;
+                            var boxW = CW + 6;
+                            content += 'q 0.5 w 0.75 0.75 0.75 RG ' + boxLeft + ' ' + boxBot + ' ' + boxW + ' ' + boxH + ' re S Q\n';
+                            if (sk === 'resumen') content += 'q 0.95 0.97 1 rg ' + boxLeft + ' ' + boxBot + ' ' + boxW + ' ' + boxH + ' re f Q\n';
+                            if (sk === 'matriz') content += 'q 0.97 0.98 0.99 rg ' + boxLeft + ' ' + boxBot + ' ' + boxW + ' ' + boxH + ' re f Q\n';
+                            // category separator lines within matriz
+                        }
+                    }
+                }
+
+                // Horizontal row lines within matriz section
+                if (sectionMap.matriz && li > sectionMap.matriz.startIdx && li <= sectionMap.matriz.endIdx) {
+                    var prevPln = pageLines[li - 1];
+                    if (prevPln && prevPln.section === 'matriz-cat') {
+                        content += 'q 0.5 w 0.8 0.8 0.8 RG ' + (ML + 5) + ' ' + y + ' ' + (CW - 5) + ' 0 re S Q\n';
+                    }
+                }
+
+                // Background fill for status cells
+                if (ln.bgColor) {
+                    content += 'q ' + ln.bgColor + ' ' + (ML + 10 - 2) + ' ' + (y - 1) + ' ' + (CW - 12) + ' ' + (lh + 2) + ' re f Q\n';
+                }
+
+                // Draw text
                 if (ln.color) content += ln.color + ' ';
                 content += 'BT ' + font + ' ' + sz + ' Tf ' + indent + ' ' + y + ' Td (' + escPdf(ln.text) + ') Tj ET\n';
                 if (ln.color) content += '0 0 0 rg\n';
