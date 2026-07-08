@@ -820,6 +820,10 @@
             addLine('', { size: 2, gap: 0 });
         }
 
+        addLine('', { size: 2, gap: 0 });
+        addLine('Elaborado por: \u00c1rea SST Operativa', { size: 9, indent: 5 });
+        addLine('Revisado por: Gerencia General / L\u00edder HSEQ', { size: 9, indent: 5 });
+        addLine('C\u00f3digo Formato: FR-SST-036  |  Versi\u00f3n: 02 (2026)', { size: 9, indent: 5, gap: 4 });
         addLine('', { size: 4, gap: 0 });
         addLine('\u2500'.repeat(80), { size: 8, gap: 6 });
 
@@ -831,20 +835,29 @@
         }
         if (r.firma) {
             (function () {
+                var fj;
                 try {
-                    var fi = new Image();
-                    fi.src = r.firma;
-                    var mc = document.createElement('canvas');
-                    mc.width = 300; mc.height = 150;
-                    var mctx = mc.getContext('2d');
-                    mctx.drawImage(fi, 0, 0, 300, 150);
-                    var fj = mc.toDataURL('image/jpeg', 0.85);
-                    images.push({ b64: fj, caption: 'Firma del Conductor: ' + (r.conductor || '') });
+                    var fc = document.createElement('canvas');
+                    fc.width = 400; fc.height = 200;
+                    var fctx = fc.getContext('2d');
+                    var img = new Image();
+                    img.src = r.firma;
+                    if (img.complete && img.naturalWidth > 0) {
+                        fctx.drawImage(img, 0, 0, 400, 200);
+                    } else {
+                        fctx.fillStyle = '#ffffff';
+                        fctx.fillRect(0, 0, 400, 200);
+                        fctx.fillStyle = '#cccccc';
+                        fctx.font = '16px sans-serif';
+                        fctx.textAlign = 'center';
+                        fctx.fillText('Firma digital', 200, 105);
+                    }
+                    fj = canvasToJpeg(fc, 0.9);
                 } catch (ef) {
-                    console.error('Firma conversion error, usando dummy:', ef);
-                    var dummy = canvasToJpeg(null);
-                    images.push({ b64: dummy, caption: 'Firma no disponible' });
+                    console.error('Firma conversion error:', ef);
+                    fj = canvasToJpeg(null);
                 }
+                images.push({ b64: fj, caption: 'Firma del Conductor: ' + (r.conductor || '') });
             })();
         }
 
