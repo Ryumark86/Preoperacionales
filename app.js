@@ -397,7 +397,7 @@
         }
 
         if (!firmaVacia()) {
-            formState.firma = canvas.toDataURL();
+            formState.firma = canvasToJpeg(canvas);
         } else {
             formState.firma = '';
         }
@@ -834,8 +834,8 @@
             });
         }
         if (r.firma) {
-            (function () {
-                var fj;
+            var fj = r.firma;
+            if (fj.indexOf('image/jpeg') < 0) {
                 try {
                     var fc = document.createElement('canvas');
                     fc.width = 400; fc.height = 200;
@@ -844,21 +844,16 @@
                     img.src = r.firma;
                     if (img.complete && img.naturalWidth > 0) {
                         fctx.drawImage(img, 0, 0, 400, 200);
+                        fj = canvasToJpeg(fc);
                     } else {
-                        fctx.fillStyle = '#ffffff';
-                        fctx.fillRect(0, 0, 400, 200);
-                        fctx.fillStyle = '#cccccc';
-                        fctx.font = '16px sans-serif';
-                        fctx.textAlign = 'center';
-                        fctx.fillText('Firma digital', 200, 105);
+                        fj = canvasToJpeg(null);
                     }
-                    fj = canvasToJpeg(fc, 0.9);
                 } catch (ef) {
-                    console.error('Firma conversion error:', ef);
+                    console.error('Firma legacy conv error:', ef);
                     fj = canvasToJpeg(null);
                 }
-                images.push({ b64: fj, caption: 'Firma del Conductor: ' + (r.conductor || '') });
-            })();
+            }
+            images.push({ b64: fj, caption: 'Firma del Conductor: ' + (r.conductor || '') });
         }
 
         var seen = {};
