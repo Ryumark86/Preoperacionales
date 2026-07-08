@@ -772,7 +772,7 @@
 
         function addLine(text, opts) {
             opts = opts || {};
-            lines.push({ text: text || '', size: opts.size != null ? opts.size : 10, bold: opts.bold || false, indent: opts.indent || 0, gap: opts.gap || 0, color: opts.color || null, isHrule: opts.isHrule || false, section: opts.section || null, bgColor: opts.bgColor || null, isHeader: opts.isHeader || false, isColHeader: opts.isColHeader || false, isCatRow: opts.isCatRow || false, isTableRow: opts.isTableRow || false, status: opts.status || null, statusColor: opts.statusColor || null, statusBg: opts.statusBg || null, isFooterHdr: opts.isFooterHdr || false, isFooterData: opts.isFooterData || false, firmaObj: opts.firmaObj || null, firmaW: opts.firmaW || 0, firmaH: opts.firmaH || 0, firmaDw: opts.firmaDw || 0, firmaDh: opts.firmaDh || 0 });
+            lines.push({ text: text || '', size: opts.size != null ? opts.size : 10, bold: opts.bold || false, indent: opts.indent || 0, gap: opts.gap || 0, color: opts.color || null, isHrule: opts.isHrule || false, section: opts.section || null, bgColor: opts.bgColor || null, isHeader: opts.isHeader || false, isColHeader: opts.isColHeader || false, isCatRow: opts.isCatRow || false, isTableRow: opts.isTableRow || false, status: opts.status || null, statusColor: opts.statusColor || null, statusBg: opts.statusBg || null, isFooterHdr: opts.isFooterHdr || false, isFooterData: opts.isFooterData || false, firmaObj: opts.firmaObj || null, firmaW: opts.firmaW || 0, firmaH: opts.firmaH || 0, firmaDw: opts.firmaDw || 0, firmaDh: opts.firmaDh || 0, type: opts.type || null });
         }
 
         function addImageLine(b64, caption) {
@@ -819,12 +819,10 @@
                 addLine('', { section: 'matriz-cat', size: 0 });
                 addLine(cat.titulo, { size: 9, bold: true, isCatRow: true, gap: 1 });
                 cat.items.forEach(function (item) {
-                    var val = r.evaluaciones[cat.titulo + '_' + item];
-                    if (val && val !== '') {
-                        var colorVal = val === 'F' ? '0 0.55 0 rg' : (val === 'NF' ? '0.8 0 0 rg' : '0.85 0.5 0 rg');
-                        var bgVal = val === 'F' ? '0.85 1 0.85 rg' : (val === 'NF' ? '1 0.85 0.85 rg' : '1 0.92 0.8 rg');
-                        addLine(item, { size: 9, indent: 10, isTableRow: true, status: val, statusColor: colorVal, statusBg: bgVal });
-                    }
+                    var val = r.evaluaciones[cat.titulo + '_' + item] || '-';
+                    var colorVal = val === 'F' ? '0 0.55 0 rg' : (val === 'NF' ? '0.8 0 0 rg' : (val === 'D' ? '0.85 0.5 0 rg' : null));
+                    var bgVal = val === 'F' ? '0.85 1 0.85 rg' : (val === 'NF' ? '1 0.85 0.85 rg' : (val === 'D' ? '1 0.92 0.8 rg' : null));
+                    addLine(item, { size: 9, indent: 10, isTableRow: true, status: val, statusColor: colorVal, statusBg: bgVal });
                 });
             });
         }
@@ -1037,7 +1035,7 @@
                 if (ln.isHeader && tp === 0) {
                     var hdrFont = ln.bold ? '/F2' : '/F1';
                     var hdrSz = ln.size != null ? ln.size : 10;
-                    content += '1 1 1 rg BT ' + hdrFont + ' ' + hdrSz + ' Tf ' + (ML + 5) + ' ' + (y + 2) + ' Td (' + escPdf(ln.text) + ') Tj ET\n';
+                    content += '1 1 1 rg BT ' + hdrFont + ' ' + hdrSz + ' Tf ' + (ML + 5) + ' ' + (y + 2) + ' Td (' + escPdf(ln.text) + ') Tj ET\n0 0 0 rg\n';
                     continue;
                 }
                 // Header on subsequent pages: draw as normal text
@@ -1052,7 +1050,7 @@
                 if (ln.isColHeader) {
                     content += 'q 0.05 0.17 0.31 rg ' + (ML + 5) + ' ' + y + ' ' + (CW - 5) + ' ' + lh + ' re f Q\n';
                     content += 'BT /F2 8 Tf 1 1 1 rg ' + (ML + 10) + ' ' + (y + 3) + ' Td (\u00cdtem / Componente) Tj ET\n';
-                    content += 'BT /F2 8 Tf 1 1 1 rg ' + (COL2_X + 5) + ' ' + (y + 3) + ' Td (Estado) Tj ET\n';
+                    content += 'BT /F2 8 Tf 1 1 1 rg ' + (COL2_X + 5) + ' ' + (y + 3) + ' Td (Estado) Tj ET\n0 0 0 rg\n';
                     continue;
                 }
 
