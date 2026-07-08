@@ -765,13 +765,14 @@
         var PAGE_W = 595, PAGE_H = 842;
         var ML = 45, MR = 45, MT = 50, MB = 50;
         var CW = PAGE_W - ML - MR;
-        var LH = 14;
+        var COL1_W = CW * 0.6;
+        var COL2_X = ML + COL1_W;
 
         var lines = [];
 
         function addLine(text, opts) {
             opts = opts || {};
-            lines.push({ text: text || '', size: opts.size != null ? opts.size : 10, bold: opts.bold || false, indent: opts.indent || 0, gap: opts.gap || 0, pageBreak: opts.pageBreak || false, color: opts.color || null, isHrule: opts.isHrule || false, section: opts.section || null, bgColor: opts.bgColor || null });
+            lines.push({ text: text || '', size: opts.size != null ? opts.size : 10, bold: opts.bold || false, indent: opts.indent || 0, gap: opts.gap || 0, color: opts.color || null, isHrule: opts.isHrule || false, section: opts.section || null, bgColor: opts.bgColor || null, isHeader: opts.isHeader || false, isColHeader: opts.isColHeader || false, isCatRow: opts.isCatRow || false, isTableRow: opts.isTableRow || false, status: opts.status || null, statusColor: opts.statusColor || null, statusBg: opts.statusBg || null, isFooterHdr: opts.isFooterHdr || false, isFooterData: opts.isFooterData || false, firmaObj: opts.firmaObj || null, firmaW: opts.firmaW || 0, firmaH: opts.firmaH || 0, firmaDw: opts.firmaDw || 0, firmaDh: opts.firmaDh || 0 });
         }
 
         function addImageLine(b64, caption) {
@@ -785,11 +786,12 @@
             lines.push({ type: 'image', b64: b64, w: iw, h: ih, caption: caption || '' });
         }
 
-        addLine('PREOPERACIONAL DE VEH\u00cdCULOS (FR-SST-036)', { size: 15, bold: true, gap: 4 });
-        addLine('SITOC \u00b7 FR-SST-036 Ver. 02', { size: 9, gap: 6 });
-        addLine('', { size: 4, gap: 0 });
-        addLine('', { isHrule: true, gap: 4 });
+        // ===== HEADER (dark blue bar) =====
+        addLine('INSPECCI\u00d3N PREOPERACIONAL DE VEH\u00cdCULOS (FR-SST-036)', { size: 14, bold: true, gap: 4, isHeader: true });
+        addLine('SITOC \u00b7 FR-SST-036 Ver. 02', { size: 9, gap: 2, isHeader: true });
 
+        // ===== RESUMEN SECTION =====
+        addLine('', { isHrule: true, gap: 4 });
         var est = r.aprobado ? 'CONFORME (Veh\u00edculo Apto)' : 'NO CONFORME (Se detectaron fallas cr\u00edticas)';
         var estColor = r.aprobado ? '0 0.55 0 rg' : '0.8 0 0 rg';
         addLine('', { section: 'resumen-start', size: 0 });
@@ -805,38 +807,50 @@
         if (r.observaciones) addLine('Obs: ' + r.observaciones, { size: 9, gap: 2 });
         addLine('', { section: 'resumen-end', size: 0 });
 
+        // ===== MATRIZ TABLE =====
         addLine('', { isHrule: true, gap: 4 });
-
         addLine('MATRIZ DE EVALUACI\u00d3N', { size: 11, bold: true, gap: 4 });
         addLine('', { section: 'matriz-start', size: 0 });
+        // Column header row
+        addLine('\u00cdtem / Componente', { size: 8, bold: true, isColHeader: true, gap: 2 });
         var hayEval = Object.values(r.evaluaciones).some(function (v) { return v !== ''; });
         if (hayEval) {
             MATRIZ_CATEGORIAS.forEach(function (cat) {
                 addLine('', { section: 'matriz-cat', size: 0 });
-                addLine('  ' + cat.titulo, { size: 10, bold: true, indent: 5, gap: 2 });
+                addLine(cat.titulo, { size: 9, bold: true, isCatRow: true, gap: 1 });
                 cat.items.forEach(function (item) {
                     var val = r.evaluaciones[cat.titulo + '_' + item];
                     if (val && val !== '') {
                         var colorVal = val === 'F' ? '0 0.55 0 rg' : (val === 'NF' ? '0.8 0 0 rg' : '0.85 0.5 0 rg');
                         var bgVal = val === 'F' ? '0.85 1 0.85 rg' : (val === 'NF' ? '1 0.85 0.85 rg' : '1 0.92 0.8 rg');
-                        addLine('    ' + item + ': ' + val, { size: 9, indent: 10, color: colorVal, bgColor: bgVal });
+                        addLine(item, { size: 9, indent: 10, isTableRow: true, status: val, statusColor: colorVal, statusBg: bgVal });
                     }
                 });
             });
         }
         addLine('', { section: 'matriz-end', size: 0 });
 
-        addLine('', { isHrule: true, gap: 4 });
-        addLine('Elaborado por: \u00c1rea SST Operativa', { size: 9, indent: 5 });
-        addLine('Revisado por: Gerencia General / L\u00edder HSEQ', { size: 9, indent: 5 });
-        addLine('C\u00f3digo Formato: FR-SST-036  |  Versi\u00f3n: 02 (2026)', { size: 9, indent: 5, gap: 4 });
-
-        var images = [];
-        if (r.fotos && r.fotos.length > 0) {
-            r.fotos.forEach(function (b64) {
-                images.push({ b64: b64, caption: 'Foto veh\u00edculo ' + r.placa });
-            });
+        // ===== OBJ SYSTEM + FONTS =====
+        var objs = [];
+        var objStreams = [];
+        var objStrings = [];
+        var nextNum = 0;
+        function newObj(isStream) {
+            nextNum++;
+            var entry = { num: nextNum, offset: 0, gen: 0 };
+            objs.push(entry);
+            if (isStream) objStreams.push(entry);
+            else objStrings.push(entry);
+            return entry;
         }
+
+        var fHelv = newObj(false);
+        fHelv.text = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
+        var fHelvB = newObj(false);
+        fHelvB.text = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+
+        // ===== FIRMA (inline before footer) =====
+        var firmaObj = null;
         if (r.firma) {
             var fj = r.firma;
             if (fj.indexOf('image/jpeg') < 0) {
@@ -857,9 +871,39 @@
                     fj = canvasToJpeg(null);
                 }
             }
-            images.push({ b64: fj, caption: 'Firma del Conductor: ' + (r.conductor || '') });
+            var finfo = jpgSize(fj);
+            if (finfo) {
+                var maxFw = CW - 80;
+                var maxFh = 120;
+                var fSc = Math.min(maxFw / finfo.w, maxFh / finfo.h, 1);
+                var fdw = Math.round(finfo.w * fSc);
+                var fdh = Math.round(finfo.h * fSc);
+                firmaObj = newObj(true);
+                firmaObj.imgBytes = base64ToBytes(fj);
+                firmaObj.text = '<< /Type /XObject /Subtype /Image /Width ' + finfo.w + ' /Height ' + finfo.h +
+                                ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + firmaObj.imgBytes.length + ' >>';
+                addLine('', { isHrule: true, gap: 4 });
+                addLine('FIRMA DEL CONDUCTOR: ' + (r.conductor || ''), { size: 11, bold: true, gap: 4 });
+                addLine('', { type: 'firma', firmaObj: firmaObj, firmaW: finfo.w, firmaH: finfo.h, firmaDw: fdw, firmaDh: fdh, size: fdh + 10, gap: 4 });
+            } else {
+                addLine('', { isHrule: true, gap: 4 });
+                addLine('FIRMA DEL CONDUCTOR: ' + (r.conductor || ''), { size: 11, bold: true, gap: 4 });
+                addLine('[Firma no disponible]', { size: 9, gap: 2 });
+            }
         }
 
+        // ===== FOOTER TABLE (4-column) =====
+        addLine('', { isHrule: true, gap: 4 });
+        addLine('', { isFooterHdr: true, size: 8, gap: 2 });
+        addLine('', { isFooterData: true, size: 8, gap: 4 });
+
+        // ===== PHOTOS (separate pages) =====
+        var images = [];
+        if (r.fotos && r.fotos.length > 0) {
+            r.fotos.forEach(function (b64) {
+                images.push({ b64: b64, caption: 'Foto veh\u00edculo ' + r.placa });
+            });
+        }
         var seen = {};
         images = images.filter(function (img) {
             var key = img.b64;
@@ -867,24 +911,6 @@
             seen[key] = true;
             return true;
         });
-
-        var objs = [];
-        var objStreams = [];
-        var objStrings = [];
-        var nextNum = 0;
-        function newObj(isStream) {
-            nextNum++;
-            var entry = { num: nextNum, offset: 0, gen: 0 };
-            objs.push(entry);
-            if (isStream) objStreams.push(entry);
-            else objStrings.push(entry);
-            return entry;
-        }
-
-        var fHelv = newObj(false);
-        fHelv.text = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
-        var fHelvB = newObj(false);
-        fHelvB.text = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
 
         var imgXObjs = [];
         images.forEach(function (img) {
@@ -902,12 +928,27 @@
         });
 
         var allPages = [];
-        var linesPerPage = 40;
-        var textPages = Math.max(1, Math.ceil(lines.length / linesPerPage));
 
+        // Phase 1: dynamic pagination — calc Y for all lines, detect page breaks
+        var pageBreaks = [0];
+        var tempY = PAGE_H - MT - 15;
+        for (var pi = 0; pi < lines.length; pi++) {
+            var ln = lines[pi];
+            var plh = Math.max(16, (ln.size != null ? ln.size : 10) + 10);
+            var pgap = ln.gap || 0;
+            if (tempY - plh < MB + 30) {
+                pageBreaks.push(pi);
+                tempY = PAGE_H - MT - 15;
+            }
+            tempY -= plh + pgap;
+        }
+        pageBreaks.push(lines.length);
+        var textPages = pageBreaks.length - 1;
+
+        // Phase 2: render each page
         for (var tp = 0; tp < textPages; tp++) {
-            var start = tp * linesPerPage;
-            var end = Math.min(start + linesPerPage, lines.length);
+            var start = pageBreaks[tp];
+            var end = pageBreaks[tp + 1];
             var pageLines = lines.slice(start, end);
 
             // Pre-pass: calculate y for each line and detect sections
@@ -917,25 +958,52 @@
             var tempY = PAGE_H - MT - 15;
             for (var pi = 0; pi < pageLines.length; pi++) {
                 var pln = pageLines[pi];
-                var plh = Math.max(14, (pln.size != null ? pln.size : 10) + 8);
+                var plh = Math.max(16, (pln.size != null ? pln.size : 10) + 10);
                 tempY -= plh;
                 pageY.push({ y: tempY, lh: plh, top: tempY + plh });
+                tempY -= (pln.gap || 0);
                 if (pln.section && pln.section.indexOf('-start') > 0) curSection = pln.section.replace('-start', '');
                 if (curSection) sectionMap[curSection] = sectionMap[curSection] || { startY: null, endY: null, startIdx: null, endIdx: null };
-                if (pln.section && pln.section.indexOf('-start') > 0) { sectionMap[curSection].startIdx = pi + 1; sectionMap[curSection].startY = tempY + plh; }
-                if (pln.section && pln.section.indexOf('-end') > 0 && curSection) { sectionMap[curSection].endIdx = pi - 1; sectionMap[curSection].endY = tempY; curSection = null; }
+                if (pln.section && pln.section.indexOf('-start') > 0) { sectionMap[curSection].startIdx = pi + 1; sectionMap[curSection].startY = pageY[pi].top; }
+                if (pln.section && pln.section.indexOf('-end') > 0 && curSection) { sectionMap[curSection].endIdx = pi - 1; sectionMap[curSection].endY = pageY[pi].y; curSection = null; }
+            }
+
+            // Check if this page has an inline firma
+            var hasFirma = false;
+            for (var fi = 0; fi < pageLines.length; fi++) {
+                if (pageLines[fi].type === 'firma') { hasFirma = true; break; }
             }
 
             var content = '';
+
+            // Draw header bar on first text page
+            if (tp === 0 && pageY.length >= 2) {
+                var hdrBot = pageY[1].y - 3;
+                var hdrTop = pageY[0].top + 3;
+                var hdrH = hdrTop - hdrBot;
+                if (hdrH > 0) {
+                    content += 'q 0.05 0.17 0.31 rg ' + (ML - 3) + ' ' + hdrBot + ' ' + (CW + 6) + ' ' + hdrH + ' re f Q\n';
+                }
+            }
+
             for (var li = 0; li < pageLines.length; li++) {
                 var ln = pageLines[li];
                 var py = pageY[li];
                 var lh = py.lh;
                 var y = py.y;
 
+                // Inline firma image rendering
+                if (ln.type === 'firma') {
+                    if (ln.firmaObj) {
+                        var fix = (PAGE_W - ln.firmaDw) / 2;
+                        var fiy = y + (lh - ln.firmaDh) / 2;
+                        content += 'q ' + ln.firmaDw + ' 0 0 ' + ln.firmaDh + ' ' + fix + ' ' + fiy + ' cm /FirmaImg Do Q\n';
+                    }
+                    continue;
+                }
                 if (ln.type === 'image') continue;
 
-                // Section box backgrounds (draw once at section start) — runs BEFORE section skip
+                // Section box backgrounds — runs BEFORE section skip
                 var sectKeys = Object.keys(sectionMap);
                 for (var si = 0; si < sectKeys.length; si++) {
                     var sk = sectKeys[si];
@@ -965,6 +1033,85 @@
                 // Section start/end markers: skip text rendering
                 if (ln.section) continue;
 
+                // === HEADER LINE (dark blue bar text) ===
+                if (ln.isHeader && tp === 0) {
+                    var hdrFont = ln.bold ? '/F2' : '/F1';
+                    var hdrSz = ln.size != null ? ln.size : 10;
+                    content += '1 1 1 rg BT ' + hdrFont + ' ' + hdrSz + ' Tf ' + (ML + 5) + ' ' + (y + 2) + ' Td (' + escPdf(ln.text) + ') Tj ET\n';
+                    continue;
+                }
+                // Header on subsequent pages: draw as normal text
+                if (ln.isHeader) {
+                    var hdrFont = ln.bold ? '/F2' : '/F1';
+                    var hdrSz = ln.size != null ? ln.size : 10;
+                    content += 'BT ' + hdrFont + ' ' + hdrSz + ' Tf ' + (ML + 5) + ' ' + (y + 2) + ' Td (' + escPdf(ln.text) + ') Tj ET\n';
+                    continue;
+                }
+
+                // === COLUMN HEADER ROW (dark blue bar) ===
+                if (ln.isColHeader) {
+                    content += 'q 0.05 0.17 0.31 rg ' + (ML + 5) + ' ' + y + ' ' + (CW - 5) + ' ' + lh + ' re f Q\n';
+                    content += 'BT /F2 8 Tf 1 1 1 rg ' + (ML + 10) + ' ' + (y + 3) + ' Td (\u00cdtem / Componente) Tj ET\n';
+                    content += 'BT /F2 8 Tf 1 1 1 rg ' + (COL2_X + 5) + ' ' + (y + 3) + ' Td (Estado) Tj ET\n';
+                    continue;
+                }
+
+                // === CATEGORY ROW (gray background) ===
+                if (ln.isCatRow) {
+                    content += 'q 0.91 0.92 0.94 rg ' + (ML + 5) + ' ' + y + ' ' + (CW - 5) + ' ' + lh + ' re f Q\n';
+                    content += 'BT /F2 9 Tf ' + (ML + 10) + ' ' + (y + 3) + ' Td (' + escPdf(ln.text) + ') Tj ET\n';
+                    continue;
+                }
+
+                // === TABLE ITEM ROW (item in col1, status in col2) ===
+                if (ln.isTableRow) {
+                    var col2W = CW - COL1_W - 10;
+                    if (ln.statusBg) {
+                        content += 'q ' + ln.statusBg + ' ' + (COL2_X + 5) + ' ' + y + ' ' + col2W + ' ' + lh + ' re f Q\n';
+                    }
+                    content += 'BT /F1 9 Tf ' + (ML + 10) + ' ' + (y + 3) + ' Td (' + escPdf(ln.text) + ') Tj ET\n';
+                    if (ln.statusColor) content += ln.statusColor + ' ';
+                    content += 'BT /F1 9 Tf ' + (COL2_X + 10) + ' ' + (y + 3) + ' Td (' + ln.status + ') Tj ET\n';
+                    if (ln.statusColor) content += '0 0 0 rg\n';
+                    continue;
+                }
+
+                // === FOOTER TABLE HEADER (light gray row) ===
+                if (ln.isFooterHdr) {
+                    var ftCol = [(CW - 5) * 0.22, (CW - 5) * 0.34, (CW - 5) * 0.24, (CW - 5) * 0.20];
+                    var ftHdr = ['Elaborado por:', 'Revisado por:', 'C\u00f3digo Formato:', 'Versi\u00f3n:'];
+                    // Light gray background (matches --gray: #f4f6f9)
+                    content += 'q 0.957 0.965 0.976 rg ' + (ML + 5) + ' ' + y + ' ' + (CW - 5) + ' ' + lh + ' re f Q\n';
+                    // Border rect
+                    content += 'q 0.5 w 0.75 0.75 0.75 RG ' + (ML + 5) + ' ' + y + ' ' + (CW - 5) + ' ' + lh + ' re S Q\n';
+                    var cx = ML + 5;
+                    for (var fi = 0; fi < 4; fi++) {
+                        content += 'BT /F2 7 Tf 0 0 0 rg ' + (cx + 3) + ' ' + (y + 4) + ' Td (' + escPdf(ftHdr[fi]) + ') Tj ET\n';
+                        cx += ftCol[fi];
+                        if (fi < 3) {
+                            content += 'q 0.5 w 0.75 0.75 0.75 RG ' + cx + ' ' + y + ' m ' + cx + ' ' + (y + lh) + ' l S Q\n';
+                        }
+                    }
+                    continue;
+                }
+
+                // === FOOTER TABLE DATA (white row) ===
+                if (ln.isFooterData) {
+                    var ftCol = [(CW - 5) * 0.22, (CW - 5) * 0.34, (CW - 5) * 0.24, (CW - 5) * 0.20];
+                    var ftDat = ['\u00c1rea SST Operativa', 'Gerencia General / L\u00edder HSEQ', 'FR-SST-036', '02 (2026)'];
+                    // Border rect
+                    content += 'q 0.5 w 0.75 0.75 0.75 RG ' + (ML + 5) + ' ' + y + ' ' + (CW - 5) + ' ' + lh + ' re S Q\n';
+                    var cx = ML + 5;
+                    for (var fi = 0; fi < 4; fi++) {
+                        content += 'BT /F1 7 Tf ' + (cx + 3) + ' ' + (y + 4) + ' Td (' + escPdf(ftDat[fi]) + ') Tj ET\n';
+                        cx += ftCol[fi];
+                        if (fi < 3) {
+                            content += 'q 0.5 w 0.75 0.75 0.75 RG ' + cx + ' ' + y + ' m ' + cx + ' ' + (y + lh) + ' l S Q\n';
+                        }
+                    }
+                    continue;
+                }
+
                 // Horizontal rule
                 if (ln.isHrule) {
                     var hrY = y + lh / 2;
@@ -978,7 +1125,7 @@
 
                 // Background fill for status cells
                 if (ln.bgColor) {
-                    content += 'q ' + ln.bgColor + ' ' + (ML + 10 - 2) + ' ' + (y - 1) + ' ' + (CW - 12) + ' ' + (lh + 2) + ' re f Q\n';
+                    content += 'q ' + ln.bgColor + ' ' + (ML + 10 - 2) + ' ' + y + ' ' + (CW - 12) + ' ' + lh + ' re f Q\n';
                 }
 
                 // Draw text
@@ -994,8 +1141,13 @@
             contentEntry.streamData = content;
 
             var fonts = '<< /F1 ' + fHelv.num + ' 0 R /F2 ' + fHelvB.num + ' 0 R >>';
+            var resources = '<< /Font ' + fonts;
+            if (hasFirma && firmaObj) {
+                resources += ' /XObject << /FirmaImg ' + firmaObj.num + ' 0 R >>';
+            }
+            resources += ' >>';
             var pageEntry = newObj(false);
-            pageEntry.text = '<< /Type /Page /Parent 0 0 R /MediaBox [0 0 ' + PAGE_W + ' ' + PAGE_H + '] /Contents ' + contentEntry.num + ' 0 R /Resources << /Font ' + fonts + ' >> >>';
+            pageEntry.text = '<< /Type /Page /Parent 0 0 R /MediaBox [0 0 ' + PAGE_W + ' ' + PAGE_H + '] /Contents ' + contentEntry.num + ' 0 R /Resources ' + resources + ' >>';
             allPages.push(pageEntry);
         }
 
@@ -1014,7 +1166,7 @@
                 var cellH = (PAGE_H - MT - MB - 40) / rows;
                 var iy = PAGE_H - MT - 20;
 
-                content += 'BT /F1 10 Tf ' + ML + ' ' + (iy + 8) + ' Td (FOTOS Y FIRMAS - P\u00e1gina ' + (ip + 1) + ') Tj ET\n';
+                content += 'BT /F1 10 Tf ' + ML + ' ' + (iy + 8) + ' Td (FOTOS - P\u00e1gina ' + (ip + 1) + ') Tj ET\n';
                 iy -= 20;
 
                 pageImgs.forEach(function (imgObj, idx) {

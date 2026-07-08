@@ -63,3 +63,45 @@ Preoperacional/
 - `formState` = `{ editingId, evaluaciones{}, fotos[], firma, proyectos[], destinos[] }`
 - Los botones de matriz se identifican por patrón `btn-{f,nf,d}-{catIdx}_{itemIdx}`
 - Los chips se gestionan con `formState.proyectos[]` y `formState.destinos[]`, arrays de strings
+
+## Generador PDF Nativo (`generarPDF`)
+
+### Paginación dinámica
+- Fase 1: pre-cálculo de Y para todas las líneas con `tempY -= lh + gap`
+- Si `tempY - lh < MB + 30`, se inserta un page break en esa línea
+- `pageBreaks[]` contiene los índices de inicio de cada página
+- `textPages = pageBreaks.length - 1`
+
+### Gap (espaciado vertical)
+- `gap` se almacena por línea pero se aplica DESPUÉS de registrar `y`:
+  ```js
+  tempY -= plh;
+  pageY.push({ y: tempY, lh: plh, top: tempY + plh });
+  tempY -= (pln.gap || 0);
+  ```
+- Esto asegura que el rectángulo de fondo cubra solo `lh` puntos y haya `gap` puntos de espacio vacío antes de la siguiente línea
+
+### Secciones (recuadros)
+- `sectionMap` se construye por página con `-start`/`-end` markers
+- `startIdx = pi + 1` (primera línea de contenido después del marker)
+- `endIdx = pi - 1` (última línea de contenido antes del marker)
+- `startY = pageY[pi].top` (tope del primer contenido)
+- `endY = pageY[pi].y` (base del marker end)
+- Los recuadros se dibujan con `re S` (borde) y `re f` (fondo)
+- Resumen: fondo `0.95 0.97 1` (azul claro)
+- Matriz: fondo `0.97 0.98 0.99` (gris claro)
+
+### Celdas coloreadas (F/NF/D)
+- F (Funciona): fondo `0.85 1 0.85 rg` (verde claro), texto `0 0.55 0 rg`
+- NF (No Funciona): fondo `1 0.85 0.85 rg` (rojo claro), texto `0.8 0 0 rg`
+- D (Defectuoso): fondo `1 0.92 0.8 rg` (naranja claro), texto `0.85 0.5 0 rg`
+- Rectángulo: `x = ML + 8`, `w = CW - 12`, `h = lh` (exacto, sin overlap)
+
+### Líneas divisorias
+- Entre categorías de matriz: línea horizontal `(ML+5) y (CW-5) 0 re S` en gris `0.8 0.8 0.8`
+- HR globales: línea dibujada con `m`/`l`/`S` en gris `0.6 0.6 0.6`
+
+### Páginas de imágenes
+- Fotos y firma en páginas separadas después del texto
+- Grid de 2×2 (4 imágenes por página)
+- Las imágenes JPEG se incrustan como XObject con filtro DCTDecode
