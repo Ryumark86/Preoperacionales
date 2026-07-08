@@ -902,7 +902,7 @@
         });
 
         var allPages = [];
-        var linesPerPage = 50;
+        var linesPerPage = 40;
         var textPages = Math.max(1, Math.ceil(lines.length / linesPerPage));
 
         for (var tp = 0; tp < textPages; tp++) {
@@ -917,7 +917,7 @@
             var tempY = PAGE_H - MT - 15;
             for (var pi = 0; pi < pageLines.length; pi++) {
                 var pln = pageLines[pi];
-                var plh = Math.max(10, (pln.size != null ? pln.size : 10) + 4);
+                var plh = Math.max(14, (pln.size != null ? pln.size : 10) + 8);
                 tempY -= plh;
                 pageY.push({ y: tempY, lh: plh, top: tempY + plh });
                 if (pln.section && pln.section.indexOf('-start') > 0) curSection = pln.section.replace('-start', '');
