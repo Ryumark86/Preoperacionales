@@ -12,7 +12,13 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       console.log('📦 Caché del sistema SITOC Vehicular activada');
-      return cache.addAll(ASSETS);
+      return Promise.all(
+        ASSETS.map(asset => {
+          return cache.add(asset).catch(err => {
+            console.error('❌ Fallo al cachear:', asset, err);
+          });
+        })
+      );
     }).then(() => self.skipWaiting())
   );
 });

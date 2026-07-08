@@ -17,11 +17,18 @@ if ('serviceWorker' in navigator) {
       var newSW = reg.installing;
       newSW.addEventListener('statechange', function () {
         if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-          console.log('Nueva versión disponible, recargando...');
-          window.location.reload();
+          console.log('Nueva versión descargada, esperando activación...');
         }
       });
     });
+  });
+  var refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function () {
+    if (!refreshing) {
+      refreshing = true;
+      console.log('Nuevo SW activo, recargando...');
+      window.location.reload();
+    }
   });
 }
 </script>
