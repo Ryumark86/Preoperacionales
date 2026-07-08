@@ -7,185 +7,28 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
-<title>Preoperacional Vehículo Semanal - SITOC</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{
-  --navy:#0d2b4e;--navy2:#1a3f6f;--cyan:#29b6d8;--cyan2:#1a9dbf;
-  --white:#fff;--gray:#f4f6f9;--gray2:#e8ecf1;--gray3:#c8d0dc;
-  --text:#1a2535;--text2:#4a5568;--danger:#e53e3e;--success:#38a169;--warn:#d97706;
-  --radius:12px;--shadow:0 2px 12px rgba(13,43,78,.13);
-}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--gray);color:var(--text);min-height:100vh;padding-bottom:90px}
-.header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);padding:14px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-.header-info{flex:1}
-.header h1{color:var(--white);font-size:13px;font-weight:700;line-height:1.2;text-transform:uppercase}
-.header p{color:rgba(255,255,255,.7);font-size:10px;margin-top:2px}
-.screen{display:none;padding:14px;max-width:600px;margin:0 auto}
-.screen.active{display:block}
-.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
-.card-header{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between;align-items:center}
-.card-title{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.04em}
-.card-title .icon{width:26px;height:26px;background:var(--navy);border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:13px;flex-shrink:0}
-.field-label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;margin-top:10px}
-.field-label:first-child{margin-top:0}
-input[type=text],input[type=date],select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--gray3);border-radius:8px;font-size:14px;color:var(--text);background:var(--white);outline:none;transition:border .2s;-webkit-appearance:none;appearance:none}
-input:focus,select:focus,textarea:focus{border-color:var(--cyan)}
-textarea{resize:vertical;min-height:80px}
-
-.day-selector-container{display:flex;gap:4px;margin-bottom:12px;background:var(--gray2);padding:4px;border-radius:8px;}
-.day-tab-btn{flex:1;border:none;background:none;padding:8px 2px;font-size:11px;font-weight:700;color:var(--text2);border-radius:6px;cursor:pointer;transition:all 0.15s;text-align:center;}
-.day-tab-btn.active{background:var(--navy);color:var(--white);box-shadow:0 2px 6px rgba(13,43,78,0.25);}
-
-.caract-item{border:1px solid var(--gray2);border-radius:8px;padding:10px;margin-bottom:10px;background:var(--gray)}
-.caract-item:last-child{margin-bottom:0}
-.caract-nombre{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px;border-bottom:1px solid var(--gray3);padding-bottom:2px;text-transform:uppercase;letter-spacing:0.02em}
-.eq-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.03)}
-.eq-row:last-child{border-bottom:none}
-.eq-nombre{font-size:12px;color:var(--text);flex:1;padding-right:8px;line-height:1.3}
-.mini-yn{display:flex;gap:4px;flex-shrink:0}
-.mini-btn{padding:6px 8px;border:1.5px solid var(--gray3);border-radius:6px;font-size:11px;font-weight:700;background:var(--white);cursor:pointer;color:var(--text2);transition:all .15s;min-width:36px;text-align:center}
-.mini-btn.sel-f{background:#d1fae5;border-color:var(--success);color:var(--success)}
-.mini-btn.sel-nf{background:#fee2e2;border-color:var(--danger);color:var(--danger)}
-.mini-btn.sel-d{background:#fef3c7;border-color:var(--warn);color:var(--warn)}
-
-.firma-wrap{position:relative;border:2px dashed var(--gray3);border-radius:10px;background:#fafbfc;overflow:hidden;touch-action:none}
-.firma-wrap canvas{display:block;width:100%;cursor:crosshair}
-.firma-hint{text-align:center;font-size:11px;color:var(--text2);padding:6px;background:var(--gray);border-top:1px solid var(--gray2)}
-.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--gray2);display:flex;z-index:200;box-shadow:0 -2px 12px rgba(0,0,0,.08)}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 10px;border:none;background:none;cursor:pointer;color:var(--text2);font-size:10px;font-weight:600;gap:3px;transition:color .15s;position:relative}
-.nav-icon{font-size:22px;line-height:1}
-.nav-btn.active{color:var(--cyan)}
-.nav-bar{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:28px;height:3px;background:var(--cyan);border-radius:2px}
-.btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;margin-top:10px}
-.btn-primary{background:linear-gradient(135deg,var(--cyan) 0%,var(--cyan2) 100%);color:var(--white);box-shadow:0 3px 10px rgba(41,182,216,.3)}
-.btn-primary:active{transform:scale(.98)}
-.btn-danger{background:var(--danger);color:var(--white)}
-.btn-outline{background:transparent;border:1.5px solid var(--navy);color:var(--navy)}
-.record-item{background:var(--white);border-radius:10px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;cursor:pointer;-webkit-user-select:none;user-select:none}
-.record-item:active{opacity:.8}
-.record-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-.dot-ok{background:var(--success)}
-.dot-warn{background:var(--danger)}
-.record-info{flex:1}
-.record-name{font-size:13px;font-weight:700;color:var(--text)}
-.record-date{font-size:11px;color:var(--text2);margin-top:2px}
-.empty-state{text-align:center;padding:48px 20px;color:var(--text2)}
-.empty-icon{font-size:52px;margin-bottom:12px}
-.toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(26,37,53,.95);color:var(--white);padding:11px 22px;border-radius:30px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap;max-width:90vw}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.detail-hdr{background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--white);border-radius:var(--radius);padding:16px;margin-bottom:12px}
-.detail-hdr h2{font-size:14px;font-weight:700}
-.detail-hdr p{font-size:11px;opacity:.75;margin-top:4px}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px}
-.info-cell span{display:block;font-size:11px;color:var(--text2);margin-bottom:2px}
-.info-cell strong{font-size:13px;color:var(--text)}
-.info-row{display:flex;flex-direction:column;gap:4px;padding:10px 0;border-bottom:1px solid var(--gray2);font-size:13px}
-.info-row:last-child{border-bottom:none}
-.info-row span{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-
-.photo-container{margin-top:10px}
-.photo-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(75px, 1fr));gap:8px;margin-top:8px}
-.photo-thumb-wrap{position:relative;width:100%;aspect-ratio:1;border-radius:6px;overflow:hidden;border:1px solid var(--gray3)}
-.photo-thumb-wrap img{width:100%;height:100%;object-fit:contain;background:#1a2535;cursor:zoom-in}
-.photo-delete-btn{position:absolute;top:2px;right:2px;background:rgba(229,62,62,0.85);color:white;border:none;width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.3);z-index:10}
-
-.notice-card-content {
-  display: flex;
-  flex-direction: row;
-  border: 1px solid var(--gray3);
-  border-radius: 8px;
-  overflow: hidden;
-  background: #fee2e2;
-}
-.notice-left {
-  color: #1a2535;
-  padding: 12px;
-  flex: 1;
-  font-size: 11.5px;
-  line-height: 1.45;
-}
-
-.weekly-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 8px; background: white; }
-.weekly-table th, .weekly-table td { border: 1px solid var(--gray3); padding: 5px; text-align: center; }
-.weekly-table th { background: var(--navy); color: white; text-transform: uppercase; font-size: 9px; }
-.weekly-table .cat-hdr-row { background: var(--gray2); font-weight: bold; color: var(--navy); text-align: left; padding-left: 6px; font-size: 10px; }
-.weekly-table td:first-child { text-align: left; font-weight: 600; color: var(--text); width: 37%; }
-.status-cell { font-weight: bold; font-size: 11px; border-radius: 4px; }
-.sc-F { color: var(--success); }
-.sc-NF { color: var(--danger); }
-.sc-D { color: var(--warn); }
-.sc-empty { color: #cbd5e1; }
-
-.lightbox-overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(13, 37, 63, 0.95);
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-  touch-action: none;
-}
-.lightbox-img {
-  max-width: 95%;
-  max-height: 85%;
-  object-fit: contain;
-  border-radius: 6px;
-  box-shadow: 0 4px 25px rgba(0,0,0,0.6);
-}
-.lightbox-close {
-  position: absolute;
-  top: 24px; right: 24px;
-  background: rgba(255,255,255,0.25);
-  color: #fff;
-  border: none;
-  width: 42px; height: 42px;
-  border-radius: 50%;
-  font-size: 22px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
-
-@media print {
-  body { background: white !important; color: #000; padding-bottom: 0; }
-  .header, .bottom-nav, .btn, .btn-outline, #btn-eliminar-reg, .btn-pdf-dinamico, .btn-upload-photo, .lightbox-overlay, .day-selector-container { 
-    display: none !important; 
-  }
-  .screen { display: none !important; }
-  #screen-detalle { display: block !important; padding: 0; max-width: 100%; margin: 0; }
-  .card { box-shadow: none !important; border: 1px solid var(--gray3) !important; page-break-inside: avoid; margin-bottom: 20px; }
-  .detail-hdr { background: #0d2b4e !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .notice-card-content { background: #fee2e2 !important; border: 1px solid #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .weekly-table th { background: #0d2b4e !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .weekly-table .cat-hdr-row { background: #e8ecf1 !important; color: #0d2b4e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .photo-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
-}
-</style>
+<link rel="stylesheet" href="styles.css">
+<title>Preoperacional Vehículo - SITOC</title>
 </head>
 <body>
 
 <div class="header">
   <div class="header-info">
-    <h1>PREOPERACIONAL SEMANAL DE VEHÍCULOS (FR-SST-036)</h1>
-    <p>SITOC · Sistema de Gestión SST · Formato Versión 02 Semanal</p>
+    <h1>PREOPERACIONAL DE VEHÍCULOS (FR-SST-036)</h1>
+    <p>SITOC · Sistema de Gestión SST · Formato Versión 02</p>
   </div>
 </div>
 
 <!-- PANTALLA 1: FORMULARIO -->
 <div id="screen-form" class="screen active">
   
-  <!-- BLOQUE 1: DATOS DE CONTROL MODIFICADO -->
+  <!-- BLOQUE 1: DATOS DE CONTROL -->
   <div class="card">
-    <div class="card-title"><div class="icon">🚗</div>Datos de Control de la Unidad Semanal</div>
+    <div class="card-title"><div class="icon">🚗</div>Datos de Control de la Unidad</div>
     <div class="meta-grid">
       <div>
         <label class="field-label">Fecha de Control:</label>
-        <input type="date" id="vehFecha" onchange="actualizarLabelSemana()">
-        <!-- Label Dinámico de Control de Ciclo Semanal Automático -->
-        <div id="lblSemanaCalculada" style="font-size: 11px; font-weight: bold; color: var(--cyan); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.02em;">CICLO: CALCULANDO...</div>
+        <input type="date" id="vehFecha">
       </div>
       <div>
         <label class="field-label">Placa del Vehículo:</label>
@@ -208,6 +51,20 @@ textarea{resize:vertical;min-height:80px}
         <input type="date" id="vehTecno">
       </div>
     </div>
+
+    <div style="margin-top: 10px;">
+      <label class="field-label">Proyecto(s):</label>
+      <div class="chip-container" id="chip-container-proyectos" onclick="document.getElementById('input-proyectos').focus()">
+        <input type="text" class="chip-input" id="input-proyectos" placeholder="Escriba un proyecto y presione Enter...">
+      </div>
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label class="field-label">Destino(s):</label>
+      <div class="chip-container" id="chip-container-destinos" onclick="document.getElementById('input-destinos').focus()">
+        <input type="text" class="chip-input" id="input-destinos" placeholder="Escriba un destino y presione Enter...">
+      </div>
+    </div>
   </div>
 
   <!-- AVISO DE NOTIFICACIÓN DE RIESGO -->
@@ -219,26 +76,15 @@ textarea{resize:vertical;min-height:80px}
     </div>
   </div>
 
-  <!-- BLOQUE MATRIZ DINÁMICA -->
+  <!-- BLOQUE MATRIZ DE EVALUACIÓN -->
   <div class="card">
     <div class="card-title"><div class="icon">📊</div>Matriz de Criterios de Evaluación</div>
-    
-    <div class="day-selector-container">
-      <button type="button" class="day-tab-btn active" id="tab-Lun" onclick="cambiarDiaActivo('Lun')">Lun</button>
-      <button type="button" class="day-tab-btn" id="tab-Mar" onclick="cambiarDiaActivo('Mar')">Mar</button>
-      <button type="button" class="day-tab-btn" id="tab-Mie" onclick="cambiarDiaActivo('Mie')">Mié</button>
-      <button type="button" class="day-tab-btn" id="tab-Jue" onclick="cambiarDiaActivo('Jue')">Jue</button>
-      <button type="button" class="day-tab-btn" id="tab-Vie" onclick="cambiarDiaActivo('Vie')">Vie</button>
-      <button type="button" class="day-tab-btn" id="tab-Sab" onclick="cambiarDiaActivo('Sab')">Sáb</button>
-      <button type="button" class="day-tab-btn" id="tab-Dom" onclick="cambiarDiaActivo('Dom')">Dom</button>
-    </div>
-
     <div id="contenedor-matriz"></div>
   </div>
 
-  <!-- SOPORTE FOTOGRÁFICO DE RESPALDO -->
+  <!-- SOPORTE FOTOGRÁFICO -->
   <div class="card">
-    <div class="card-title"><div class="icon">📷</div>Evidencias Fotográficas Semanales</div>
+    <div class="card-title"><div class="icon">📷</div>Evidencias Fotográficas</div>
     <div class="photo-container">
       <label class="field-label" style="margin-top:0;">Fotos del Vehículo (Estado general, Placa o Hallazgos):</label>
       <button type="button" class="btn btn-outline btn-upload-photo" style="margin-top:4px; padding:8px; font-size:12px;" onclick="document.getElementById('file-vehiculo').click()">📷 Capturar Evidencia</button>
@@ -248,42 +94,45 @@ textarea{resize:vertical;min-height:80px}
   </div>
 
   <div class="card">
-    <div class="card-title"><div class="icon">💬</div>Observaciones / Hallazgos Críticos de la Semana</div>
+    <div class="card-title"><div class="icon">💬</div>Observaciones / Hallazgos Críticos</div>
     <textarea id="vehObs" placeholder="Escriba detalles específicos en caso de marcar elementos como 'No Funciona' o 'Defectuoso'..."></textarea>
   </div>
 
   <div class="card">
-    <div class="card-title"><div class="icon">✒️</div>Firma del Conductor del Turno (<span id="lbl-firma-dia" style="color:var(--cyan); font-weight:bold;">Lunes</span>)</div>
+    <div class="card-title"><div class="icon">✒️</div>Firma del Conductor</div>
     <div class="firma-wrap">
       <canvas id="firmaCanvas" height="150"></canvas>
-      <div class="firma-hint">La firma se guardará exclusivamente para el día seleccionado arriba</div>
+      <div class="firma-hint">Dibuje su firma digital dentro del recuadro</div>
     </div>
-    <button class="btn btn-outline" style="padding: 8px; font-size: 13px; margin-top: 8px;" onclick="limpiarFirma()">Limpiar Firma de este Día</button>
+    <button class="btn btn-outline" style="padding: 8px; font-size: 13px; margin-top: 8px;" onclick="limpiarFirma()">Limpiar Firma</button>
   </div>
 
-  <button class="btn btn-primary" id="btn-guardar-main" onclick="guardarFormulario()">Guardar Reporte Semanal</button>
+  <button class="btn btn-primary" id="btn-guardar-main" onclick="guardarFormulario()">Guardar Reporte</button>
 </div>
 
 <!-- PANTALLA 2: HISTORIAL -->
 <div id="screen-historial" class="screen">
   <div id="historial-lista"></div>
-  <button class="btn btn-danger" style="margin-top: 20px; display: none;" id="btn-borrar-todo" onclick="borrarTodo()">Borrar Todo el Historial</button>
+  <div class="history-actions">
+    <button class="btn btn-outline btn-download" onclick="window._descargarHistorial()">📥 Descargar historial como JSON</button>
+    <button class="btn btn-danger" id="btn-borrar-todo" onclick="borrarTodo()" style="display: none;">Borrar Todo el Historial</button>
+  </div>
 </div>
 
-<!-- PANTALLA 3: DETALLE DE INSPECCIÓN -->
+<!-- PANTALLA 3: DETALLE -->
 <div id="screen-detalle" class="screen">
   <button class="btn btn-outline" style="margin-bottom: 12px; padding: 8px;" onclick="showScreen('historial')">← Volver al Historial</button>
   <div id="detalleContenido"></div>
   <button class="btn btn-danger" id="btn-eliminar-reg" style="margin-top: 15px;">Eliminar Registro de la Memoria</button>
 </div>
 
-<!-- LIGHTBOX MODAL NATIVO -->
+<!-- LIGHTBOX -->
 <div id="customLightbox" class="lightbox-overlay" onclick="cerrarHdLightbox()">
   <button class="lightbox-close" onclick="cerrarHdLightbox()">✕</button>
   <img id="customLightboxImg" class="lightbox-img" src="" alt="Vista ampliada" onclick="event.stopPropagation()">
 </div>
 
-<!-- MENÚ DE NAVEGACIÓN INFERIOR -->
+<!-- NAVEGACIÓN INFERIOR -->
 <div class="bottom-nav">
   <button class="nav-btn active" id="nav-form" onclick="showScreen('form')">
     <span class="nav-icon">📝</span>
@@ -299,481 +148,7 @@ textarea{resize:vertical;min-height:80px}
 
 <div id="toast" class="toast"></div>
 
-<script>
-var DIAS_ARR = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"];
-var diaSeleccionado = "Lun";
+<script src="app.js"></script>
 
-var MATRIZ_CATEGORIAS = [
-  {
-    titulo: "Luces",
-    items: ["Frontales", "Traseras", "Direccionales", "De Parqueo", "De Stop y Frenado"]
-  },
-  {
-    titulo: "Cabina",
-    items: ["Espejo Central Panorámico", "Espejos Laterales", "Alarma de Retroceso", "Pito", "Cinturón de Seguridad", "Limpia Parabrisas (Agua y Plumillas)", "Asientos en Buenas Condiciones", "Indicadores: Aceite, Temperatura, Tacómetro"]
-  },
-  {
-    titulo: "Rodamiento",
-    items: ["Estado de las Llantas", "Llanta de Repuesto en Buen Estado", "Muelles Traseros / Delanteros", "Freno de Seguridad"]
-  },
-  {
-    titulo: "Estado Mecánico y Eléctrico",
-    items: ["Fugas Hidráulicas", "Fugas Otros Líquidos (Agua, Valvulinas)", "Estado de Mangueras, Correas", "SOPORTE DEL CARDAN", "Niveles: Aceite, Temperatura, Frenos, Embrague, Hidráulico", "Batería (Protectores y Bornes)", "Sistema Eléctrico Aislado y Cableado"]
-  },
-  {
-    titulo: "Condiciones de Seguridad",
-    items: ["Botiquín de Prim. Auxilios", "Extintor de Incendios", "Equipo de Carretera", "Herramientas Básicas", "Conos con Reflectivos"]
-  }
-];
-
-var formState = {
-  editingId: null,
-  evaluaciones: {}, 
-  fotos: [],
-  firmas: { Lun:'', Mar:'', Mie:'', Jue:'', Vie:'', Sab:'', Dom:'' }
-};
-
-window.addEventListener('DOMContentLoaded', function() {
-  construirMatrizUI();
-  initCanvasFirma();
-  resetFormularioUI();
-  
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(function(e) {});
-  }
-});
-
-function construirMatrizUI() {
-  var html = '';
-  MATRIZ_CATEGORIAS.forEach(function(cat, catIdx) {
-    html += '<div class="caract-item">';
-    html += '  <div class="caract-nombre">' + cat.titulo + '</div>';
-    cat.items.forEach(function(item, itemIdx) {
-      var key = cat.titulo + "_" + item;
-      var safeId = catIdx + '_' + itemIdx;
-      html += '  <div class="eq-row">';
-      html += '    <div class="eq-nombre">' + item + '</div>';
-      html += '    <div class="mini-yn">';
-      html += '      <div class="mini-btn" id="btn-f-' + safeId + '" onclick="setEvaluacion(\'' + key.replace(/'/g, "\\'") + '\',\'F\',\'' + safeId + '\')">F</div>';
-      html += '      <div class="mini-btn" id="btn-nf-' + safeId + '" onclick="setEvaluacion(\'' + key.replace(/'/g, "\\'") + '\',\'NF\',\'' + safeId + '\')">NF</div>';
-      html += '      <div class="mini-btn" id="btn-d-' + safeId + '" onclick="setEvaluacion(\'' + key.replace(/'/g, "\\'") + '\',\'D\',\'' + safeId + '\')">D</div>';
-      html += '    </div>';
-      html += '  </div>';
-    });
-    html += '</div>';
-  });
-  document.getElementById('contenedor-matriz').innerHTML = html;
-}
-
-/* 🔄 FUNCIÓN LOGÍSTICA NUEVA: CALCULA EL RANGO DE LA SEMANA AUTOMÁTICAMENTE */
-function obtenerTextoRangoSemana(fechaStr) {
-  if (!fechaStr) return "CICLO: —";
-  // Forzar parsing con zona horaria local neutralizando el desfase del GMT
-  var dObj = new Date(fechaStr + 'T00:00:00');
-  var diaSemana = dObj.getDay(); // 0 = Domingo, 1 = Lunes, etc.
-  
-  // Calcular desfase hacia el lunes (Si es domingo (0) restamos 6, sino restamos diaSemana - 1)
-  var diasRestaALun = (diaSemana === 0) ? 6 : (diaSemana - 1);
-  
-  var lunesObj = new Date(dObj);
-  lunesObj.setDate(dObj.getDate() - diasRestaALun);
-  
-  var domingoObj = new Date(lunesObj);
-  domingoObj.setDate(lunesObj.getDate() + 6);
-  
-  var opcionesFormat = { day: 'numeric', month: 'short' };
-  var strLun = lunesObj.toLocaleDateString('es-CO', opcionesFormat);
-  var strDom = domingoObj.toLocaleDateString('es-CO', opcionesFormat);
-  
-  return "📅 CICLO: Del " + strLun + " al " + strDom;
-}
-
-function actualizarLabelSemana() {
-  var fVal = document.getElementById('vehFecha').value;
-  document.getElementById('lblSemanaCalculada').innerText = obtenerTextoRangoSemana(fVal);
-}
-
-function cambiarDiaActivo(nuevoDia) {
-  if (!firmaVacia()) {
-    formState.firmas[diaSeleccionado] = canvas.toDataURL();
-  } else {
-    formState.firmas[diaSeleccionado] = '';
-  }
-
-  diaSeleccionado = nuevoDia;
-  DIAS_ARR.forEach(function(d) {
-    document.getElementById('tab-' + d).className = (d === nuevoDia) ? 'day-tab-btn active' : 'day-tab-btn';
-  });
-  
-  var etiquetasLabel = { Lun:'Lunes', Mar:'Martes', Mie:'Miércoles', Jue:'Jueves', Vie:'Viernes', Sab:'Sábado', Dom:'Domingo' };
-  document.getElementById('lbl-firma-dia').innerText = etiquetasLabel[nuevoDia];
-
-  actualizarBotonesMatrizUI();
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (formState.firmas[diaSeleccionado]) {
-    var img = new Image();
-    img.onload = function() { ctx.drawImage(img, 0, 0); };
-    img.src = formState.firmas[diaSeleccionado];
-  }
-}
-
-function setEvaluacion(key, valor, safeId) {
-  if (!formState.evaluaciones[key]) {
-    formState.evaluaciones[key] = { Lun:'', Mar:'', Mie:'', Jue:'', Vie:'', Sab:'', Dom:'' };
-  }
-  if (formState.evaluaciones[key][diaSeleccionado] === valor) {
-    formState.evaluaciones[key][diaSeleccionado] = '';
-  } else {
-    formState.evaluaciones[key][diaSeleccionado] = valor;
-  }
-  actualizarFilaBotones(key, safeId);
-}
-
-function actualizarBotonesMatrizUI() {
-  MATRIZ_CATEGORIAS.forEach(function(cat, catIdx) {
-    cat.items.forEach(function(item, itemIdx) {
-      var key = cat.titulo + "_" + item;
-      var safeId = catIdx + '_' + itemIdx;
-      actualizarFilaBotones(key, safeId);
-    });
-  });
-}
-
-function actualizarFilaBotones(key, safeId) {
-  var idF = 'btn-f-' + safeId;
-  var idNf = 'btn-nf-' + safeId;
-  var idD = 'btn-d-' + safeId;
-  var estadoActual = (formState.evaluaciones[key] && formState.evaluaciones[key][diaSeleccionado]) ? formState.evaluaciones[key][diaSeleccionado] : '';
-  
-  document.getElementById(idF).className = estadoActual === 'F' ? 'mini-btn sel-f' : 'mini-btn';
-  document.getElementById(idNf).className = estadoActual === 'NF' ? 'mini-btn sel-nf' : 'mini-btn';
-  document.getElementById(idD).className = estadoActual === 'D' ? 'mini-btn sel-d' : 'mini-btn';
-}
-
-function capturarFotoManejador(input, contenedorId) {
-  if (!input.files || input.files.length === 0) return;
-  Array.from(input.files).forEach(function(file) {
-    var lector = new FileReader();
-    lector.onload = function(eventoRaiz) {
-      var img = new Image();
-      img.onload = function() {
-        var placa = document.getElementById('vehPlaca').value.trim().toUpperCase() || 'Sin Placa';
-        var ahora = new Date();
-        var fechaHoraStr = ahora.toLocaleDateString('es-CO') + ' ' + ahora.toLocaleTimeString('es-CO');
-        if (navigator.geolocation) {
-          showToast('📡 Fijando coordenadas por satélite...');
-          navigator.geolocation.getCurrentPosition(
-            function(position) {
-              var lat = position.coords.latitude.toFixed(6);
-              var lon = position.coords.longitude.toFixed(6);
-              var geoStr = "Lat: " + lat + ", Lon: " + lon;
-              procesarYEstamparLienzo(img, fechaHoraStr, geoStr, placa, contenedorId);
-            },
-            function(error) {
-              alert("❌ RECHAZO DE SEGURIDAD:\nGPS No Disponible para timbrado.");
-              showToast("⚠️ Foto rechazada por falta de GPS");
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-          );
-        }
-      };
-      img.src = eventoRaiz.target.result;
-    };
-    lector.readAsDataURL(file);
-  });
-  input.value = '';
-}
-
-function procesarYEstamparLienzo(img, fechaHora, gps, placa, contenedorId) {
-  var canvasAux = document.createElement('canvas');
-  var maxAnchoAlto = 800; 
-  var ancho = img.width; var alto = img.height;
-  if (ancho > alto) {
-    if (ancho > maxAnchoAlto) { alto *= maxAnchoAlto / ancho; ancho = maxAnchoAlto; }
-  } else {
-    if (alto > maxAnchoAlto) { ancho *= maxAnchoAlto / alto; alto = maxAnchoAlto; }
-  }
-  canvasAux.width = ancho; canvasAux.height = alto;
-  var contexto = canvasAux.getContext('2d');
-  contexto.drawImage(img, 0, 0, ancho, alto);
-  
-  var altoFranja = 60; 
-  contexto.fillStyle = "rgba(0, 0, 0, 0.65)";
-  contexto.fillRect(0, alto - altoFranja, ancho, altoFranja);
-  contexto.fillStyle = "#ffffff";
-  contexto.font = "bold 14px -apple-system, BlinkMacSystemFont, sans-serif";
-  contexto.textBaseline = "top";
-  contexto.fillText("📅 " + fechaHora + "   📍 " + gps, 14, alto - altoFranja + 10);
-  contexto.fillText("🚘 Inspección Semanal Placa: " + placa + " (" + diaSeleccionado + ")", 14, alto - altoFranja + 32);
-  
-  formState.fotos.push(canvasAux.toDataURL('image/jpeg', 0.65));
-  renderizarPrevisualizacionFotos(contenedorId);
-}
-
-function renderizarPrevisualizacionFotos(contenedorId) {
-  var contenedor = document.getElementById(contenedorId);
-  contenedor.innerHTML = '';
-  formState.fotos.forEach(function(base64Data, indice) {
-    var wrap = document.createElement('div'); wrap.className = 'photo-thumb-wrap';
-    var img = document.createElement('img'); img.src = base64Data; img.onclick = function() { abrirHdLightbox(this.src); };
-    var btnBorrar = document.createElement('button'); btnBorrar.className = 'photo-delete-btn'; btnBorrar.type = 'button'; btnBorrar.innerHTML = '✕';
-    btnBorrar.onclick = function(e) { e.stopPropagation(); formState.fotos.splice(indice, 1); renderizarPrevisualizacionFotos(contenedorId); };
-    wrap.appendChild(img); wrap.appendChild(btnBorrar); contenedor.appendChild(wrap);
-  });
-}
-
-function abrirHdLightbox(sourceB64) {
-  var overlay = document.getElementById('customLightbox');
-  document.getElementById('customLightboxImg').src = sourceB64;
-  overlay.style.display = 'flex'; document.body.style.overflow = 'hidden'; 
-}
-function cerrarHdLightbox() { document.getElementById('customLightbox').style.display = 'none'; document.body.style.overflow = 'auto'; }
-
-var canvas, ctx, dibujando = false;
-function initCanvasFirma() {
-  canvas = document.getElementById('firmaCanvas'); ctx = canvas.getContext('2d');
-  ctx.strokeStyle = '#0d2b4e'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
-  function ajustarAnchoCanvas() {
-    canvas.width = canvas.parentElement.clientWidth;
-    ctx.strokeStyle = '#0d2b4e'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
-    if(formState.firmas[diaSeleccionado]){
-      var img = new Image(); img.onload = function(){ ctx.drawImage(img, 0, 0); }; img.src = formState.firmas[diaSeleccionado];
-    }
-  }
-  ajustarAnchoCanvas(); window.addEventListener('resize', ajustarAnchoCanvas);
-  canvas.addEventListener('mousedown', function(e) { dibujando = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
-  canvas.addEventListener('mousemove', function(e) { if (dibujando) { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } });
-  window.addEventListener('mouseup', function() { dibujando = false; });
-  canvas.addEventListener('touchstart', function(e) {
-    if (e.touches.length === 1) { dibujando = true; var t = e.touches[0]; var r = canvas.getBoundingClientRect(); ctx.beginPath(); ctx.moveTo(t.clientX - r.left, t.clientY - r.top); }
-  });
-  canvas.addEventListener('touchmove', function(e) {
-    if (dibujando && e.touches.length === 1) { var t = e.touches[0]; var r = canvas.getBoundingClientRect(); ctx.lineTo(t.clientX - r.left, t.clientY - r.top); ctx.stroke(); e.preventDefault(); }
-  });
-  canvas.addEventListener('touchend', function() { dibujando = false; });
-}
-function limpiarFirma() { ctx.clearRect(0, 0, canvas.width, canvas.height); formState.firmas[diaSeleccionado] = ''; }
-  function firmaVacia() {
-  var buffer = new Uint32Array(ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer);
-  return !buffer.some(function(color) { return color !== 0; });
-}
-
-function resetFormularioUI() {
-  document.getElementById('vehFecha').value = new Date().toISOString().split('T')[0];
-  actualizarLabelSemana(); // <--- Disparador de carga inicial
-  document.getElementById('vehPlaca').value = '';
-  document.getElementById('vehConductor').value = '';
-  document.getElementById('vehSoat').value = '';
-  document.getElementById('vehTecno').value = '';
-  document.getElementById('vehObs').value = '';
-  document.getElementById('btn-guardar-main').innerText = "Guardar Reporte Semanal";
-  
-  formState.editingId = null; formState.evaluaciones = {}; formState.fotos = [];
-  formState.firmas = { Lun:'', Mar:'', Mie:'', Jue:'', Vie:'', Sab:'', Dom:'' };
-
-  MATRIZ_CATEGORIAS.forEach(function(cat) {
-    cat.items.forEach(function(item) {
-      formState.evaluaciones[cat.titulo + "_" + item] = { Lun:'', Mar:'', Mie:'', Jue:'', Vie:'', Sab:'', Dom:'' };
-    });
-  });
-  cambiarDiaActivo('Lun');
-  document.getElementById('preview-vehiculo').innerHTML = '';
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-function getRegs() { return JSON.parse(localStorage.getItem('sitoc_vehiculo_v2') || '[]'); }
-
-function guardarFormulario() {
-  var fecha = document.getElementById('vehFecha').value;
-  var placa = document.getElementById('vehPlaca').value.trim().toUpperCase();
-  var conductor = document.getElementById('vehConductor').value.trim();
-  var soat = document.getElementById('vehSoat').value;
-  var tecno = document.getElementById('vehTecno').value;
-  var obs = document.getElementById('vehObs').value.trim();
-
-  if (!fecha || !placa || !conductor || !soat || !tecno) {
-    showToast('⚠️ Complete todos los datos obligatorios de control'); return;
-  }
-  if (!firmaVacia()) { formState.firmas[diaSeleccionado] = canvas.toDataURL(); } else { formState.firmas[diaSeleccionado] = ''; }
-
-  var diasConEvaluacion = { Lun:false, Mar:false, Mie:false, Jue:false, Vie:false, Sab:false, Dom:false };
-  Object.values(formState.evaluaciones).forEach(function(diasObj) {
-    DIAS_ARR.forEach(function(d) { if (diasObj[d] && diasObj[d] !== '') { diasConEvaluacion[d] = true; } });
-  });
-
-  var faltaFirmaAlgundia = false; var diaFaltanteStr = "";
-  for (var i = 0; i < DIAS_ARR.length; i++) {
-    var d = DIAS_ARR[i];
-    if (diasConEvaluacion[d] && !formState.firmas[d]) { faltaFirmaAlgundia = true; diaFaltanteStr = d; break; }
-  }
-  if (faltaFirmaAlgundia) {
-    alert("❌ VALIDACIÓN SST RECHAZADA:\nEl día (" + diaFaltanteStr + ") tiene registros marcados pero carece de firma corporativa.");
-    return;
-  }
-
-  var aprobadoGlobal = true;
-  Object.values(formState.evaluaciones).forEach(function(diasObj) {
-    Object.values(diasObj).forEach(function(val) { if (val === 'NF' || val === 'D') aprobadoGlobal = false; });
-  });
-
-  var registro = {
-    id: formState.editingId ? formState.editingId : Date.now().toString(),
-    fecha: fecha, placa: placa, conductor: conductor, soat: soat, tecno: tecno,
-    evaluaciones: formState.evaluaciones, observaciones: obs, fotos: formState.fotos, firmas: formState.firmas, aprobado: aprobadoGlobal
-  };
-
-  var regs = getRegs();
-  if (formState.editingId) {
-    var idx = regs.findIndex(function(r) { return r.id === formState.editingId; }); if(idx !== -1) regs[idx] = registro;
-  } else { regs.unshift(registro); }
-  
-  localStorage.setItem('sitoc_vehiculo_v2', JSON.stringify(regs));
-  showToast(formState.editingId ? '🔄 Registro semanal actualizado' : '✅ Reporte semanal guardado');
-  resetFormularioUI(); showScreen('historial');
-}
-
-function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
-  document.querySelectorAll('.nav-btn').forEach(function(b) {
-    b.classList.remove('active'); var bar = b.querySelector('.nav-bar'); if (bar) bar.style.display = 'none';
-  });
-  document.getElementById('screen-' + name).classList.add('active');
-  var navBtn = document.getElementById('nav-' + name);
-  if (navBtn) { navBtn.classList.add('active'); var bar = navBtn.querySelector('.nav-bar'); if (bar) bar.style.display = 'block'; }
-  window.scrollTo(0, 0); if (name === 'historial') renderHistorial();
-}
-
-function showToast(msg) {
-  var t = document.getElementById('toast'); t.innerText = msg; t.className = 'toast show';
-  setTimeout(function() { t.className = 'toast'; }, 2500);
-}
-
-function renderHistorial() {
-  var list = document.getElementById('historial-lista'); var regs = getRegs(); var btnBorrar = document.getElementById('btn-borrar-todo');
-  if (regs.length === 0) {
-    btnBorrar.style.display = 'none';
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📁</div><p>No se registran preoperacionales semanales</p></div>`; return;
-  }
-  btnBorrar.style.display = 'block'; var html = '';
-  regs.forEach(function(r) {
-    var dotClass = r.aprobado ? 'dot-ok' : 'dot-warn';
-    var textoRango = obtenerTextoRangoSemana(r.fecha).replace("📅 ", "");
-    html += '<div class="record-item" onclick="verDetalle(\'' + r.id + '\')">';
-    html += '  <div class="record-dot ' + dotClass + '"></div>';
-    html += '  <div class="record-info">';
-    html += '    <div class="record-name">' + r.placa + ' — ' + r.conductor + '</div>';
-    html += '    <div class="record-date">' + textoRango + '</div>';
-    html += '  </div>';
-    html += '  <span style="font-size:12px; color:var(--cyan); font-weight:bold;">👁️ Ver / PDF</span>';
-    html += '</div>';
-  });
-  list.innerHTML = html;
-}
-
-function cargarParaEditar(id) {
-  var r = getRegs().find(function(reg) { return reg.id === id; }); if (!r) return;
-  formState.editingId = r.id;
-  formState.evaluaciones = JSON.parse(JSON.stringify(r.evaluaciones));
-  formState.fotos = Array.from(r.fotos || []);
-  formState.firmas = JSON.parse(JSON.stringify(r.firmas || { Lun:'', Mar:'', Mie:'', Jue:'', Vie:'', Sab:'', Dom:'' }));
-
-  document.getElementById('vehFecha').value = r.fecha;
-  actualizarLabelSemana(); // <--- Recalcula el ciclo visual al editar
-  document.getElementById('vehPlaca').value = r.placa;
-  document.getElementById('vehConductor').value = r.conductor;
-  document.getElementById('vehSoat').value = r.soat;
-  document.getElementById('vehTecno').value = r.tecno;
-  document.getElementById('vehObs').value = r.observaciones || '';
-  document.getElementById('btn-guardar-main').innerText = "🔄 Actualizar Progreso Semanal";
-  renderizarPrevisualizacionFotos('preview-vehiculo'); cambiarDiaActivo('Lun'); showScreen('form');
-}
-
-function verDetalle(id) {
-  var r = getRegs().find(function(reg) { return reg.id === id; }); if (!r) return;
-  var html = ''; var estadoTexto = r.aprobado ? 'CONFORME (Vehículo Apto Semanal)' : 'NO CONFORME (Se detectaron hallazgos críticos)';
-  var estadoColor = r.aprobado ? 'var(--success)' : 'var(--danger)';
-  var textoRangoCompleto = obtenerTextoRangoSemana(r.fecha).replace("📅 ", "");
-
-  html += '<div class="detail-hdr">';
-  html += '  <h2>INSPECCIÓN PREOPERACIONAL SEMANAL DE VEHÍCULOS (FR-SST-036)</h2>';
-  html += '  <p>Conductor Principal: ' + r.conductor + ' | Vehículo Placa: ' + r.placa + '</p>';
-  html += '</div>';
-
-  html += '<button class="btn btn-outline" onclick="cargarParaEditar(\'' + r.id + '\')" style="background: #fff8e1; border-color: var(--warn); color: var(--navy); margin-bottom: 12px; font-size:13px;">✏️ Editar / Continuar Llenando Semana</button>';
-
-  html += '<div class="card">';
-  html += '  <div class="card-title"><div class="icon">📋</div>Resumen de Auditoría de Control Vehicular</div>';
-  html += '  <div class="info-row"><span>Dictamen de la Flota:</span><strong style="color:' + estadoColor + '">' + estadoTexto + '</strong></div>';
-  html += '  <div class="info-row"><span>Período de la Inspección:</span><strong>' + textoRangoCompleto + '</strong></div>';
-  html += '  <div class="info-row"><span>Vencimiento SOAT:</span><strong>' + r.soat + '</strong></div>';
-  html += '  <div class="info-row"><span>Vencimiento Tecno-Mecánica:</span><strong>' + r.tecno + '</strong></div>';
-  html += '  <div class="info-row"><span>Historial de Observaciones Semanales:</span><p style="font-size:13px; margin-top:2px;">' + (r.observaciones || 'Sin novedades registradas.') + '</p></div>';
-  html += '</div>';
-
-  html += '<div class="card" style="padding: 10px; overflow-x: auto;">';
-  html += '  <div class="card-title"><div class="icon">📊</div>Matriz de Inspección Completa de la Semana</div>';
-  html += '  <table class="weekly-table"><thead><tr><th>Ítem / Componente</th><th>Lun</th><th>Mar</th><th>Mie</th><th>Jue</th><th>Vie</th><th>Sab</th><th>Dom</th></tr></thead><tbody>';
-  MATRIZ_CATEGORIAS.forEach(function(cat) {
-    html += '    <tr><td colspan="8" class="cat-hdr-row">' + cat.titulo + '</td></tr>';
-    cat.items.forEach(function(item) {
-      var key = cat.titulo + "_" + item; var objDias = r.evaluaciones[key] || {Lun:'', Mar:'', Mie:'', Jue:'', Vie:'', Sab:'', Dom:''};
-      html += '    <tr><td>' + item + '</td>';
-      DIAS_ARR.forEach(function(d) {
-        var val = objDias[d] || '—'; var cClass = 'sc-empty'; if(val === 'F') cClass = 'sc-F'; if(val === 'NF') cClass = 'sc-NF'; if(val === 'D') cClass = 'sc-D';
-        html += '    <td class="status-cell ' + cClass + '">' + val + '</td>';
-      });
-      html += '    </tr>';
-    });
-  });
-  html += '    </tbody></table></div>';
-
-  if (r.fotos && r.fotos.length > 0) {
-    html += '<div class="card"><div class="card-title"><div class="icon">📷</div>Soporte Fotográfico Acumulado</div><div class="photo-grid" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px;">';
-    r.fotos.forEach(function(base64) { html += '    <div style="width:100%; border:1px solid var(--gray3); border-radius:6px; overflow:hidden; background:#000;"><img src="' + base64 + '" style="width:100%; height:auto; display:block; cursor:zoom-in;" onclick="abrirHdLightbox(this.src)"></div>'; });
-    html += '  </div></div>';
-  }
-
-  html += '<div class="card" style="page-break-inside: avoid;"><div class="card-title"><div class="icon">✒️</div>Firmas de Validaciones Diarias</div><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; text-align: center; margin-top:10px;">';
-  var mapaNombresLargos = { Lun:'Lunes', Mar:'Martes', Mie:'Miércoles', Jue:'Jueves', Vie:'Viernes', Sab:'Sábado', Dom:'Domingo' };
-  DIAS_ARR.forEach(function(d) {
-    var firmaB64 = r.firmas ? r.firmas[d] : '';
-    html += '    <div style="border: 1px solid var(--gray3); border-radius: 8px; padding: 6px; background: var(--gray);">';
-    html += '      <span style="font-size: 11px; font-weight: bold; color: var(--navy); display: block; border-bottom: 1px solid var(--gray3); padding-bottom: 4px; margin-bottom: 6px;">' + mapaNombresLargos[d] + '</span>';
-    if (firmaB64) { html += '      <img src="' + firmaB64 + '" style="display:block; width:100%; height:auto; max-height:65px; object-fit:contain; background:white; border-radius:4px; margin: 0 auto;">'; } 
-    else { html += '      <div style="font-size: 10px; color: var(--text2); height: 50px; display: flex; align-items: center; justify-content: center; font-style: italic;">Sin firmar</div>'; }
-    html += '    </div>';
-  });
-  html += '  </div></div>';
-
-  html += '<div class="card" style="page-break-inside: avoid; padding: 0; overflow: hidden; border: 1px solid var(--gray3);"><table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11px;"><thead><tr style="background: var(--gray); border-bottom: 1px solid var(--gray3);"><th style="padding: 8px; font-weight: bold; color: var(--navy); border-right: 1px solid var(--gray3); background:none;">Elaborado por:</th><th style="padding: 8px; font-weight: bold; color: var(--navy); border-right: 1px solid var(--gray3); background:none;">Revisado por:</th><th style="padding: 8px; font-weight: bold; color: var(--navy); border-right: 1px solid var(--gray3); background:none;">Código Formato:</th><th style="padding: 8px; font-weight: bold; color: var(--navy); background:none;">Versión:</th></tr></thead><tbody><tr><td style="padding: 10px; color: var(--text); border-right: 1px solid var(--gray3);">Área SST Operativa</td><td style="padding: 10px; color: var(--text); border-right: 1px solid var(--gray3);">Gerencia General / Líder HSEQ</td><td style="padding: 10px; color: var(--text); border-right: 1px solid var(--gray3);">FR-SST-036</td><td style="padding: 10px; color: var(--text);">02 Semanal (2026)</td></tr></tbody></table></div>';
-
-  document.getElementById('detalleContenido').innerHTML = html;
-  document.getElementById('btn-eliminar-reg').onclick = function() { eliminarReg(r.id); };
-
-  var pantallaDetalle = document.getElementById('screen-detalle');
-  var viejoBtn = pantallaDetalle.querySelector('.btn-pdf-dinamico'); if(viejoBtn) viejoBtn.remove();
-
-  var btnPdf = document.createElement('button'); btnPdf.className = 'btn btn-pdf-dinamico';
-  btnPdf.style = "background: var(--success); color: white; margin-top: 15px; box-shadow: 0 3px 10px rgba(56,161,105,.3);";
-  btnPdf.innerHTML = '📥 Exportar / Guardar Reporte Semanal en PDF';
-  btnPdf.onclick = function() {
-    var tituloOriginal = document.title;
-    document.title = "Preoperacional_Semanal_" + r.placa.trim() + "_" + r.fecha; window.print();
-    setTimeout(function() { document.title = tituloOriginal; }, 1000);
-  };
-  pantallaDetalle.insertBefore(btnPdf, document.getElementById('btn-eliminar-reg')); showScreen('detalle');
-}
-
-function eliminarReg(id) {
-  if (!confirm('¿Seguro que desea eliminar este bloque semanal completo?')) return;
-  var regs = getRegs().filter(function(r) { return r.id !== id; }); localStorage.setItem('sitoc_vehiculo_v2', JSON.stringify(regs));
-  showScreen('historial'); showToast('🗑️ Bloque semanal eliminado');
-}
-function borrarTodo() {
-  if (!confirm('🚨 ¿Desea vaciar TODO el historial de la flota?')) return;
-  localStorage.removeItem('sitoc_vehiculo_v2'); renderHistorial(); showToast('🗑️ Base de datos vehicular vaciada');
-}
-</script>
 </body>
 </html>
