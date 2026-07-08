@@ -830,17 +830,22 @@
             });
         }
         if (r.firma) {
-            var firmaJpeg = r.firma.indexOf('image/jpeg') >= 0 ? r.firma : canvasToJpeg(null);
-            if (r.firma.indexOf('image/jpeg') < 0) {
-                var mc = document.createElement('canvas');
-                mc.width = 300; mc.height = 150;
-                var mctx = mc.getContext('2d');
-                var fi = new Image();
-                fi.src = r.firma;
-                mctx.drawImage(fi, 0, 0, 300, 150);
-                firmaJpeg = mc.toDataURL('image/jpeg', 0.85);
-            }
-            images.push({ b64: firmaJpeg, caption: 'Firma del Conductor: ' + (r.conductor || '') });
+            (function () {
+                try {
+                    var fi = new Image();
+                    fi.src = r.firma;
+                    var mc = document.createElement('canvas');
+                    mc.width = 300; mc.height = 150;
+                    var mctx = mc.getContext('2d');
+                    mctx.drawImage(fi, 0, 0, 300, 150);
+                    var fj = mc.toDataURL('image/jpeg', 0.85);
+                    images.push({ b64: fj, caption: 'Firma del Conductor: ' + (r.conductor || '') });
+                } catch (ef) {
+                    console.error('Firma conversion error, usando dummy:', ef);
+                    var dummy = canvasToJpeg(null);
+                    images.push({ b64: dummy, caption: 'Firma no disponible' });
+                }
+            })();
         }
 
         var seen = {};
@@ -1038,7 +1043,18 @@
     function enviarTelegram(r) {
         showToast('\ud83d\udcc4 Generando PDF...', 'info');
 
-        var pdfBytes = generarPDF(r);
+        try {
+            var pdfBytes = generarPDF(r);
+        } catch (e) {
+            console.error('generarPDF error:', e);
+            showToast('\u274c Error generando PDF: ' + e.message, 'error');
+            return;
+        }
+        if (!pdfBytes || pdfBytes.length < 100) {
+            showToast('\u274c PDF generado vac\u00edo o inv\u00e1lido', 'error');
+            return;
+        }
+
         var pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
         var nomBase = 'Preoperacional_' + (r.placa || 'SinPlaca').replace(/[/\\?%*:|"<> ]/g, '_') + '_' + (r.fecha || '');
 
