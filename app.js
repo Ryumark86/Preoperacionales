@@ -923,7 +923,7 @@
                 if (pln.section && pln.section.indexOf('-start') > 0) curSection = pln.section.replace('-start', '');
                 if (curSection) sectionMap[curSection] = sectionMap[curSection] || { startY: null, endY: null, startIdx: null, endIdx: null };
                 if (pln.section && pln.section.indexOf('-start') > 0) { sectionMap[curSection].startIdx = pi + 1; sectionMap[curSection].startY = tempY + plh; }
-                if (pln.section && pln.section.indexOf('-end') > 0) { sectionMap[curSection].endIdx = pi - 1; sectionMap[curSection].endY = tempY; curSection = null; }
+                if (pln.section && pln.section.indexOf('-end') > 0 && curSection) { sectionMap[curSection].endIdx = pi - 1; sectionMap[curSection].endY = tempY; curSection = null; }
             }
 
             var content = '';
