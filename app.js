@@ -771,7 +771,7 @@
 
         function addLine(text, opts) {
             opts = opts || {};
-            lines.push({ text: text || '', size: opts.size || 10, bold: opts.bold || false, indent: opts.indent || 0, gap: opts.gap || 0, pageBreak: opts.pageBreak || false, color: opts.color || null, isHrule: opts.isHrule || false, section: opts.section || null, bgColor: opts.bgColor || null });
+            lines.push({ text: text || '', size: opts.size != null ? opts.size : 10, bold: opts.bold || false, indent: opts.indent || 0, gap: opts.gap || 0, pageBreak: opts.pageBreak || false, color: opts.color || null, isHrule: opts.isHrule || false, section: opts.section || null, bgColor: opts.bgColor || null });
         }
 
         function addImageLine(b64, caption) {
@@ -902,7 +902,7 @@
         });
 
         var allPages = [];
-        var linesPerPage = 56;
+        var linesPerPage = 50;
         var textPages = Math.max(1, Math.ceil(lines.length / linesPerPage));
 
         for (var tp = 0; tp < textPages; tp++) {
@@ -917,7 +917,7 @@
             var tempY = PAGE_H - MT - 15;
             for (var pi = 0; pi < pageLines.length; pi++) {
                 var pln = pageLines[pi];
-                var plh = Math.max(10, (pln.size || 10) + 4);
+                var plh = Math.max(10, (pln.size != null ? pln.size : 10) + 4);
                 tempY -= plh;
                 pageY.push({ y: tempY, lh: plh, top: tempY + plh });
                 if (pln.section && pln.section.indexOf('-start') > 0) curSection = pln.section.replace('-start', '');
@@ -935,21 +935,7 @@
 
                 if (ln.type === 'image') continue;
 
-                // Section start/end markers: just skip drawing text
-                if (ln.section) continue;
-
-                // Horizontal rule
-                if (ln.isHrule) {
-                    var hrY = y + lh / 2;
-                    content += 'q 0.7 w 0.6 0.6 0.6 RG ' + ML + ' ' + hrY + ' m ' + (ML + CW) + ' ' + hrY + ' l S Q\n';
-                    continue;
-                }
-
-                var indent = ML + (ln.indent || 0);
-                var font = ln.bold ? '/F2' : '/F1';
-                var sz = ln.size || 10;
-
-                // Section box backgrounds (draw once at section start)
+                // Section box backgrounds (draw once at section start) — runs BEFORE section skip
                 var sectKeys = Object.keys(sectionMap);
                 for (var si = 0; si < sectKeys.length; si++) {
                     var sk = sectKeys[si];
@@ -964,18 +950,31 @@
                             content += 'q 0.5 w 0.75 0.75 0.75 RG ' + boxLeft + ' ' + boxBot + ' ' + boxW + ' ' + boxH + ' re S Q\n';
                             if (sk === 'resumen') content += 'q 0.95 0.97 1 rg ' + boxLeft + ' ' + boxBot + ' ' + boxW + ' ' + boxH + ' re f Q\n';
                             if (sk === 'matriz') content += 'q 0.97 0.98 0.99 rg ' + boxLeft + ' ' + boxBot + ' ' + boxW + ' ' + boxH + ' re f Q\n';
-                            // category separator lines within matriz
                         }
                     }
                 }
 
-                // Horizontal row lines within matriz section
-                if (sectionMap.matriz && li > sectionMap.matriz.startIdx && li <= sectionMap.matriz.endIdx) {
+                // Horizontal row lines within matriz section — runs BEFORE section skip
+                if (sectionMap.matriz && sectionMap.matriz.startIdx != null && sectionMap.matriz.endIdx != null && li > sectionMap.matriz.startIdx && li <= sectionMap.matriz.endIdx) {
                     var prevPln = pageLines[li - 1];
                     if (prevPln && prevPln.section === 'matriz-cat') {
                         content += 'q 0.5 w 0.8 0.8 0.8 RG ' + (ML + 5) + ' ' + y + ' ' + (CW - 5) + ' 0 re S Q\n';
                     }
                 }
+
+                // Section start/end markers: skip text rendering
+                if (ln.section) continue;
+
+                // Horizontal rule
+                if (ln.isHrule) {
+                    var hrY = y + lh / 2;
+                    content += 'q 0.7 w 0.6 0.6 0.6 RG ' + ML + ' ' + hrY + ' m ' + (ML + CW) + ' ' + hrY + ' l S Q\n';
+                    continue;
+                }
+
+                var indent = ML + (ln.indent || 0);
+                var font = ln.bold ? '/F2' : '/F1';
+                var sz = ln.size != null ? ln.size : 10;
 
                 // Background fill for status cells
                 if (ln.bgColor) {
